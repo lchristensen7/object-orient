@@ -18,7 +18,7 @@ class Author implements \JsonSerializable {
 	 **/
 	private $authorId;
 	/**
-	 * create avatar for this author; this is a unique index
+	 * create URL for this author; this is a unique index
 	 * @var string $authorAvatarUrl
 	 **/
 	private $authorAvatarUrl;
@@ -45,28 +45,26 @@ class Author implements \JsonSerializable {
 	/**
 	 * constructor for this Author
 	 *
-	 * @param string|Uuid $newProfileId id of this Profile or null if a new Profile
-	 * @param string $newProfileActivationToken activation token to safe guard against malicious accounts
-	 * @param string $newProfileAtHandle string containing newAtHandle
-	 * @param string $newProfileAvatarUrl string containing newAtHandle can be null
-	 * @param string $newProfileEmail string containing email
-	 * @param string $newProfileHash string containing password hash
-	 * @param string $newProfilePhone string containing phone number
+	 * @param string|Uuid $AuthorId id of this Author or null if a new Author
+	 * @param string $newAuthorAvatarUrl string containing avatar created or Author
+	 * @param string $newAuthorActivationToken token handed out to verify author
+	 * @param string $newAuthorEmail string containing email
+	 * @param string $newAuthorHash string containing password hash
+	 * @param string $newAuthorUsername string containing name of author
 	 * @throws \InvalidArgumentException if data types are not valid
 	 * @throws \RangeException if data values are out of bounds (e.g., strings too long, negative integers)
 	 * @throws \TypeError if a data type violates a data hint
 	 * @throws \Exception if some other exception occurs
 	 * @Documentation https://php.net/manual/en/language.oop5.decon.php
 	 **/
-	public function __construct($newProfileId, ?string $newProfileActivationToken, string $newProfileAtHandle, string $newProfileAvatarUrl, string $newProfileEmail, string $newProfileHash, ?string $newProfilePhone) {
+	public function __construct($newAuthorId, string $newAuthorAvatarUrl, string $newAuthorActivationToken, string $newAuthorEmail, string $newAuthorHash, string $newAuthorUsername) {
 		try {
-			$this->setProfileId($newProfileId);
-			$this->setProfileActivationToken($newProfileActivationToken);
-			$this->setProfileAtHandle($newProfileAtHandle);
-			$this->setProfileAvatarUrl($newProfileAvatarUrl);
-			$this->setProfileEmail($newProfileEmail);
-			$this->setProfileHash($newProfileHash);
-			$this->setProfilePhone($newProfilePhone);
+			$this->setAuthorId($newAuthorId);
+			$this->setAuthorAvatarUrl($newAuthorAvatarUrl);
+			$this->setAuthorActivationToken($newAuthorActivationToken);
+			$this->setAuthorEmail($newAuthorEmail);
+			$this->setAuthorHash($newAuthorHash);
+			$this->setAuthorUsername($newAuthorUsername);
 		} catch(\InvalidArgumentException | \RangeException |\TypeError | \Exception $exception) {
 			//determine what exception type was thrown
 			$exceptionType = get_class($exception);
@@ -78,25 +76,25 @@ class Author implements \JsonSerializable {
 	 *
 	 * @return Uuid value of profile id (or null if new Profile)
 	 **/
-	public function getProfileId(): Uuid {
-		return ($this->profileId);
+	public function getAuthorId(): Uuid {
+		return ($this->authorId);
 	}
 	/**
-	 * mutator method for profile id
+	 * mutator method for author id
 	 *
-	 * @param  Uuid| string $newProfileId value of new profile id
-	 * @throws \RangeException if $newProfileId is not positive
-	 * @throws \TypeError if the profile Id is not
+	 * @param  Uuid| string $newAuthorId value of new author id
+	 * @throws \RangeException if $newAuthorId is not positive
+	 * @throws \TypeError if the author Id is not
 	 **/
-	public function setProfileId($newProfileId): void {
+	public function setAuthorId($newAuthorId): void {
 		try {
-			$uuid = self::validateUuid($newProfileId);
+			$uuid = self::validateUuid($newAuthorId);
 		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			$exceptionType = get_class($exception);
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 		// convert and store the profile id
-		$this->profileId = $uuid;
+		$this->authorId = $uuid;
 	}
 	/**
 	 * accessor method for account activation token
