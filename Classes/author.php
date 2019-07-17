@@ -260,13 +260,13 @@ class Author implements \JsonSerializable {
 	 **/
 	public function insert(\PDO $pdo): void {
 		// create query template
-		$query = "INSERT INTO profile(profileId, profileActivationToken, profileAtHandle, profileAvatarUrl,  profileEmail, profileHash, profilePhone) VALUES (:profileId, :profileActivationToken, :profileAtHandle, :profileAvatarUrl, :profileEmail, :profileHash, :profilePhone)";
+		$query = "INSERT INTO author(authorId, authorActivationToken, authorAvatarUrl,  authorEmail, authorHash, authorUsername) VALUES (:authorId, :authorActivationToken, :authorAvatarUrl, :authorEmail, :authorHash, :authorUsername)";
 		$statement = $pdo->prepare($query);
-		$parameters = ["profileId" => $this->profileId->getBytes(), "profileActivationToken" => $this->profileActivationToken, "profileAtHandle" => $this->profileAtHandle, "profileAvatarUrl" => $this->profileAvatarUrl, "profileEmail" => $this->profileEmail, "profileHash" => $this->profileHash,"profilePhone" => $this->profilePhone];
+		$parameters = ["authorId" => $this->authorId->getBytes(), "authorActivationToken" => $this->authorActivationToken, "authorAvatarUrl" => $this->authorAvatarUrl, "authorEmail" => $this->authorEmail, "authorHash" => $this->authorHash, "authorUsername" => $this->authorUsername];
 		$statement->execute($parameters);
 	}
 	/**
-	 * deletes this Profile from mySQL
+	 * deletes this Author from mySQL
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @throws \PDOException when mySQL related errors occur
@@ -274,133 +274,97 @@ class Author implements \JsonSerializable {
 	 **/
 	public function delete(\PDO $pdo): void {
 		// create query template
-		$query = "DELETE FROM profile WHERE profileId = :profileId";
+		$query = "DELETE FROM author WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
 		//bind the member variables to the place holders in the template
-		$parameters = ["profileId" => $this->profileId->getBytes()];
+		$parameters = ["authorId" => $this->authorId->getBytes()];
 		$statement->execute($parameters);
 	}
 	/**
-	 * updates this Profile from mySQL
+	 * updates this Author from mySQL
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @throws \PDOException when mySQL related errors occur
 	 **/
 	public function update(\PDO $pdo): void {
 		// create query template
-		$query = "UPDATE profile SET profileActivationToken = :profileActivationToken, profileAtHandle = :profileAtHandle, profileAvatarUrl = :profileAvatarUrl,profileEmail = :profileEmail, profileHash = :profileHash, profilePhone = :profilePhone WHERE profileId = :profileId";
+		$query = "UPDATE author SET authorActivationToken = :authorActivationToken, autohrAvatarUrl = :authorAvatarUrl, authorEmail = :profileEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
 		// bind the member variables to the place holders in the template
-		$parameters = ["profileId" => $this->profileId->getBytes(), "profileActivationToken" => $this->profileActivationToken, "profileAtHandle" => $this->profileAtHandle, "profileAvatarUrl" => $this->profileAvatarUrl, "profileEmail" => $this->profileEmail, "profileHash" => $this->profileHash, "profilePhone" => $this->profilePhone];
+		$parameters = ["authorId" => $this->authorId->getBytes(), "authorActivationToken" => $this->authorActivationToken, "authorAvatarUrl" => $this->authorAvatarUrl, "authorEmail" => $this->authorEmail, "authorHash" => $this->authorHash, "authorUsername" => $this->authorUsername];
 		$statement->execute($parameters);
 	}
 	/**
-	 * gets the Profile by profile id
+	 * gets the Author by author id
 	 *
 	 * @param \PDO $pdo $pdo PDO connection object
-	 * @param  $profileId profile Id to search for (the data type should be mixed/not specified)
-	 * @return Profile|null Profile or null if not found
+	 * @param  $authorId author Id to search for (the data type should be mixed/not specified)
+	 * @return Author|null Author or null if not found
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when a variable are not the correct data type
 	 **/
-	public static function getProfileByProfileId(\PDO $pdo, $profileId):?Profile {
-		// sanitize the profile id before searching
+	public static function getAuthorByAuthorId(\PDO $pdo, $authorId):?Author {
+		// sanitize the author id before searching
 		try {
-			$profileId = self::validateUuid($profileId);
+			$authorId = self::validateUuid($authorId);
 		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
 		// create query template
-		$query = "SELECT profileId, profileActivationToken, profileAtHandle, profileAvatarUrl, profileEmail, profileHash, profilePhone FROM profile WHERE profileId = :profileId";
+		$query = "SELECT authorId, authorActivationToken, authorAvatarUrl, authorEmail, authorHash, authorUsername FROM author WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
 		// bind the profile id to the place holder in the template
-		$parameters = ["profileId" => $profileId->getBytes()];
+		$parameters = ["authorId" => $authorId->getBytes()];
 		$statement->execute($parameters);
-		// grab the Profile from mySQL
+		// grab the Author from mySQL
 		try {
 			$profile = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$profile = new Profile($row["profileId"], $row["profileActivationToken"], $row["profileAtHandle"], $row["profileAvatarUrl"],$row["profileEmail"], $row["profileHash"], $row["profilePhone"]);
+				$profile = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"],$row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
-		return ($profile);
+		return ($author);
 	}
 	/**
-	 * gets the Profile by email
+	 * gets the Author by email
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @param string $profileEmail email to search for
-	 * @return Profile|null Profile or null if not found
+	 * @return Author|null Author or null if not found
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
-	public static function getProfileByProfileEmail(\PDO $pdo, string $profileEmail): ?Profile {
+	public static function getAuthorByAuthorEmail(\PDO $pdo, string $authorEmail): Author {
 		// sanitize the email before searching
-		$profileEmail = trim($profileEmail);
-		$profileEmail = filter_var($profileEmail, FILTER_VALIDATE_EMAIL);
-		if(empty($profileEmail) === true) {
+		$authorEmail = trim($authorEmail);
+		$authorEmail = filter_var($authorEmail, FILTER_VALIDATE_EMAIL);
+		if(empty($authorEmail) === true) {
 			throw(new \PDOException("not a valid email"));
 		}
 		// create query template
-		$query = "SELECT profileId, profileActivationToken, profileAtHandle, profileAvatarUrl, profileEmail, profileHash, profilePhone FROM profile WHERE profileEmail = :profileEmail";
+		$query = "SELECT authorId, authorActivationToken, authorAvatarUrl, authorEmail, authorHash, authorUsername FROM author WHERE authorEmail = :authorEmail";
 		$statement = $pdo->prepare($query);
 		// bind the profile id to the place holder in the template
-		$parameters = ["profileEmail" => $profileEmail];
+		$parameters = ["authorEmail" => $authorEmail];
 		$statement->execute($parameters);
 		// grab the Profile from mySQL
 		try {
-			$profile = null;
+			$author = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$profile = new Profile($row["profileId"], $row["profileActivationToken"], $row["profileAtHandle"], $row["profileAvatarUrl"], $row["profileEmail"], $row["profileHash"], $row["profilePhone"]);
+				$profile = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"], $row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
 		return ($profile);
-	}
-	/**
-	 * gets the Profile by at handle
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param string $profileAtHandle at handle to search for
-	 * @return \SPLFixedArray of all profiles found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getProfileByProfileAtHandle(\PDO $pdo, string $profileAtHandle) : \SPLFixedArray {
-		// sanitize the at handle before searching
-		$profileAtHandle = trim($profileAtHandle);
-		$profileAtHandle = filter_var($profileAtHandle, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($profileAtHandle) === true) {
-			throw(new \PDOException("not a valid at handle"));
-		}
-		// create query template
-		$query = "SELECT  profileId, profileActivationToken, profileAtHandle, profileAvatarUrl, profileEmail, profileHash, profilePhone FROM profile WHERE profileAtHandle = :profileAtHandle";
-		$statement = $pdo->prepare($query);
-		// bind the profile at handle to the place holder in the template
-		$parameters = ["profileAtHandle" => $profileAtHandle];
-		$statement->execute($parameters);
-		$profiles = new \SPLFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while (($row = $statement->fetch()) !== false) {
-			try {
-				$profile = new Profile($row["profileId"], $row["profileActivationToken"], $row["profileAtHandle"], $row["profileAvatarUrl"], $row["profileEmail"], $row["profileHash"], $row["profilePhone"]);
-				$profiles[$profiles->key()] = $profile;
-				$profiles->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return ($profiles);
 	}
 	/**
 	 * get the profile by profile activation token
