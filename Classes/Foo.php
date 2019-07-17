@@ -38,12 +38,12 @@ class Author implements \JsonSerializable {
 	 **/
 	private $authorHash;
 	/**
-	 * username for this author
-	 * @var string $profilePhone
+	 * name created for this author; this is a unique index
+	 * @var string $authorUsername
 	 **/
 	private $authorUsername;
 	/**
-	 * constructor for this Profile
+	 * constructor for this Author
 	 *
 	 * @param string|Uuid $newProfileId id of this Profile or null if a new Profile
 	 * @param string $newProfileActivationToken activation token to safe guard against malicious accounts
