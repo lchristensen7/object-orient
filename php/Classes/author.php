@@ -1,5 +1,5 @@
 <?php
-namespace lchristensen7/DataDesign;
+namespace lchristensen7/ObjectOrient;
 require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 use Ramsey\Uuid\Uuid;
 /**
@@ -13,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 class Author implements \JsonSerializable {
 	use ValidateUuid;
 	/**
-	 * id for this Profile; this is the primary key
+	 * id for this author; this is the primary key
 	 * @var Uuid $authorId
 	 **/
 	private $authorId;
@@ -112,7 +112,7 @@ class Author implements \JsonSerializable {
 	 * @throws \RangeException if the token is not exactly 32 characters
 	 * @throws \TypeError if the activation token is not a string
 	 */
-	public function setProfileActivationToken(string $newAuthorActivationToken): void {
+	public function setAuthorActivationToken(string $newAuthorActivationToken): void {
 		if($newAuthorActivationToken === null) {
 			$this->authorActivationToken = null;
 			return;
@@ -128,7 +128,7 @@ class Author implements \JsonSerializable {
 		$this->authorActivationToken = $newAuthorActivationToken;
 	}
 	/**
-	 * accessor method for profile avatar url
+	 * accessor method for author avatar url
 	 * @return string value of the activation token
 	 */
 	public function getAuthorAvatarUrl() : string {
@@ -137,7 +137,7 @@ class Author implements \JsonSerializable {
 	/**
 	 * mutator method for at
 	 *
-	 * @param string $newAuthorAvatarUrl new value of profile avatar URL
+	 * @param string $newAuthorAvatarUrl new value of author avatar URL
 	 * @throws \InvalidArgumentException if $newAuthorAvatarUrl is not a string or insecure
 	 * @throws \RangeException if $newAuthorAvatarUrl is > 255 characters
 	 * @throws \TypeError if $newAuthorAvatarUrl is not a string
@@ -173,7 +173,7 @@ class Author implements \JsonSerializable {
 		$newAuthorEmail = trim($newAuthorEmail);
 		$newAuthorEmail = filter_var($newAuthorEmail, FILTER_VALIDATE_EMAIL);
 		if(empty($newAuthorEmail) === true) {
-			throw(new \InvalidArgumentException("profile email is empty or insecure"));
+			throw(new \InvalidArgumentException("author email is empty or insecure"));
 		}
 		// verify the email will fit in the database
 		if(strlen($newAuthorEmail) > 128) {
@@ -196,7 +196,7 @@ class Author implements \JsonSerializable {
 	 * @param string $newAuthorHash
 	 * @throws \InvalidArgumentException if the hash is not secure
 	 * @throws \RangeException if the hash is not 128 characters
-	 * @throws \TypeError if profile hash is not a string
+	 * @throws \TypeError if author hash is not a string
 	 */
 	public function setAuthorHash(string $newAuthorHash): void {
 		//enforce that the hash is properly formatted
@@ -288,7 +288,7 @@ class Author implements \JsonSerializable {
 	 **/
 	public function update(\PDO $pdo): void {
 		// create query template
-		$query = "UPDATE author SET authorActivationToken = :authorActivationToken, autohrAvatarUrl = :authorAvatarUrl, authorEmail = :profileEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
+		$query = "UPDATE author SET authorActivationToken = :authorActivationToken, autohrAvatarUrl = :authorAvatarUrl, authorEmail = :authorEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
 		// bind the member variables to the place holders in the template
 		$parameters = ["authorId" => $this->authorId->getBytes(), "authorActivationToken" => $this->authorActivationToken, "authorAvatarUrl" => $this->authorAvatarUrl, "authorEmail" => $this->authorEmail, "authorHash" => $this->authorHash, "authorUsername" => $this->authorUsername];
@@ -313,16 +313,16 @@ class Author implements \JsonSerializable {
 		// create query template
 		$query = "SELECT authorId, authorActivationToken, authorAvatarUrl, authorEmail, authorHash, authorUsername FROM author WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
-		// bind the profile id to the place holder in the template
+		// bind the author id to the place holder in the template
 		$parameters = ["authorId" => $authorId->getBytes()];
 		$statement->execute($parameters);
 		// grab the Author from mySQL
 		try {
-			$profile = null;
+			$author = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$profile = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"],$row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
+				$author = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"],$row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
@@ -334,7 +334,7 @@ class Author implements \JsonSerializable {
 	 * gets the Author by email
 	 *
 	 * @param \PDO $pdo PDO connection object
-	 * @param string $profileEmail email to search for
+	 * @param string $authorEmail email to search for
 	 * @return Author|null Author or null if not found
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
@@ -349,16 +349,16 @@ class Author implements \JsonSerializable {
 		// create query template
 		$query = "SELECT authorId, authorActivationToken, authorAvatarUrl, authorEmail, authorHash, authorUsername FROM author WHERE authorEmail = :authorEmail";
 		$statement = $pdo->prepare($query);
-		// bind the profile id to the place holder in the template
+		// bind the author id to the place holder in the template
 		$parameters = ["authorEmail" => $authorEmail];
 		$statement->execute($parameters);
-		// grab the Profile from mySQL
+		// grab the author from mySQL
 		try {
 			$author = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$profile = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"], $row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
+				$author yg= new Author($row["authorId"], $row["authorActivationToken"], $row["authorAvatarUrl"], $row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
@@ -390,11 +390,11 @@ class Author implements \JsonSerializable {
 		$statement->execute($parameters);
 		// grab the Author from mySQL
 		try {
-			$profile = null;
+			$author = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$author = new Author($row["profileId"], $row["authorActivationToken"], $row["authorAtHandle"], $row["authorAvatarUrl"], $row["authorEmail"], $row["autyhorHash"], $row["authorUsername"]);
+				$author = new Author($row["authorId"], $row["authorActivationToken"], $row["authorAtHandle"], $row["authorAvatarUrl"], $row["authorEmail"], $row["autyhorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
