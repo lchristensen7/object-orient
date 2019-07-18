@@ -364,43 +364,43 @@ class Author implements \JsonSerializable {
 			// if the row couldn't be converted, rethrow it
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
-		return ($profile);
+		return ($author);
 	}
 	/**
-	 * get the profile by profile activation token
+	 * get the author by author activation token
 	 *
-	 * @param string $profileActivationToken
+	 * @param string $authorActivationToken
 	 * @param \PDO object $pdo
-	 * @return Profile|null Profile or null if not found
+	 * @return Author|null Author or null if not found
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
 	public
-	static function getProfileByProfileActivationToken(\PDO $pdo, string $profileActivationToken) : ?Profile {
+	static function getAuthorByAuthorActivationToken(\PDO $pdo, string $authorActivationToken) : Author {
 		//make sure activation token is in the right format and that it is a string representation of a hexadecimal
-		$profileActivationToken = trim($profileActivationToken);
-		if(ctype_xdigit($profileActivationToken) === false) {
-			throw(new \InvalidArgumentException("profile activation token is empty or in the wrong format"));
+		$authorActivationToken = trim($authorActivationToken);
+		if(ctype_xdigit($authorActivationToken) === false) {
+			throw(new \InvalidArgumentException("author activation token is empty or in the wrong format"));
 		}
 		//create the query template
-		$query = "SELECT  profileId, profileActivationToken, profileAtHandle, profileAvatarUrl, profileEmail, profileHash, profilePhone FROM profile WHERE profileActivationToken = :profileActivationToken";
+		$query = "SELECT  authorId, authorActivationToken, authorAvatarUrl, authorEmail, authorHash, authorUsername FROM author WHERE authorActivationToken = :authorActivationToken";
 		$statement = $pdo->prepare($query);
-		// bind the profile activation token to the placeholder in the template
-		$parameters = ["profileActivationToken" => $profileActivationToken];
+		// bind the author activation token to the placeholder in the template
+		$parameters = ["authorActivationToken" => $authorActivationToken];
 		$statement->execute($parameters);
-		// grab the Profile from mySQL
+		// grab the Author from mySQL
 		try {
 			$profile = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$profile = new Profile($row["profileId"], $row["profileActivationToken"], $row["profileAtHandle"], $row["profileAvatarUrl"], $row["profileEmail"], $row["profileHash"], $row["profilePhone"]);
+				$author = new Author($row["profileId"], $row["authorActivationToken"], $row["authorAtHandle"], $row["authorAvatarUrl"], $row["authorEmail"], $row["autyhorHash"], $row["authorUsername"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
-		return ($profile);
+		return ($author);
 	}
 	/**
 	 * formats the state variables for JSON serialization
@@ -409,9 +409,9 @@ class Author implements \JsonSerializable {
 	 **/
 	public function jsonSerialize() {
 		$fields = get_object_vars($this);
-		$fields["profileId"] = $this->profileId->toString();
-		unset($fields["profileActivationToken"]);
-		unset($fields["profileHash"]);
+		$fields["authorId"] = $this->authorId->toString();
+		unset($fields["authorActivationToken"]);
+		unset($fields["authorHash"]);
 		return ($fields);
 	}
 }
