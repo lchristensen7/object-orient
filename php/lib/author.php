@@ -1,8 +1,8 @@
 <?php
-namespace lchristensen7/ObjectOrient
+namespace lchristensen7\ObjectOrient;
 
-require_once("../Classes/bar.php");
+require_once("../Classes/author.php");
 
-$foo = new bar();
+$author = new Author();
 
-var_dump($foo);
+var_dump($author);

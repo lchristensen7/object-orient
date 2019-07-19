@@ -1,5 +1,5 @@
 <?php
-namespace lchristensen7/ObjectOrient;
+namespace lchristensen7\ObjectOrient;
 /**
  * Trait to Validate a mySQL Date
  *

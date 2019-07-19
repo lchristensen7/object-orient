@@ -1,5 +1,5 @@
 <?php
-namespace lchristensen7/ObjectOrient;
+namespace lchristensen7\ObjectOrient;
 require_once(dirname(__DIR__, 2) . "/vendor/autoload.php");
 use Ramsey\Uuid\Uuid;
 /**
