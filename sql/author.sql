@@ -1,3 +1,6 @@
+ALTER DATABASE lchristensen7 CHARACTER SET utf8_unicode_ci;
+DROP TABLE IF EXISTS author;
+
 create table Author(
 	authorId binary(16) not null,
 	authorAvatarUrl varchar(255),
