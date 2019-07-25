@@ -150,7 +150,7 @@ class Author implements \JsonSerializable {
 			throw(new\RangeException("user activation is not valid"));
 		}
 		//make sure user activation token is only 32 characters
-		if(strlen($newAuthorActivationToken) !== 6) {
+		if(strlen($newAuthorActivationToken) !== 32) {
 			throw(new\RangeException("user activation token has to be 32"));
 		}
 		$this->authorActivationToken = $newAuthorActivationToken;
@@ -269,6 +269,7 @@ class Author implements \JsonSerializable {
  * @throws \PDOException when mySQL related errors occur
  * @throws \TypeError if $pdo is not a PDO connection object
  **/
+
 public function insert(\PDO $pdo): void {
 	// create query template
 	$query = "INSERT INTO author(authorId, authorActivationToken, authorAvatarUrl,  authorEmail, authorHash, authorUsername) VALUES (:authorId, :authorActivationToken, :authorAvatarUrl, :authorEmail, :authorHash, :authorUsername)";
