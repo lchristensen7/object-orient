@@ -123,91 +123,125 @@ class Author implements \JsonSerializable {
 	 * mutator method for author Avatar URL or null ifno author avatar URL
 	 *
 	 * @param string | Uuid $newAuthorAvatarUrl new value of author profile id
-	 * @throws \RangeException if $newProfileId is not positive
-	 * @throws \TypeError if $newAuthorProfileId is not an integer
+	 * @throws \RangeException if $newAuthorAvatarUrl is not positive
+	 * @throws \TypeError if $newAuthorAvatarUrl is not a string
 	 **/
 
-	public function setAuthorProfileId( $newAuthorProfileId) : void {
-		try {
-			$uuid = self::validateUuid($newAuthorProfileId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			$exceptionType = get_class($exception);
-			throw(new $exceptionType($exception->getMessage(), 0, $exception));
-		}
-
-		// convert and store the profile id
-		$this->authorProfileId = $uuid;
+	public function setAuthorAvatarUrl ( string: $newAuthorAvatarUrl) : void {
+		$newAuthorAvatarUrl = trim ($newAthorAvatarUrl);
+		$newAuthorAvatarUrl = filtar_var ($newAuthorAvatarUrl), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+// verify the avatar URL will fit in the database
+if (strlen($newAuthorAvatarUrl) > 255) {
+	throw(new \RangeException ("image content too large"));
+}
+		//store the image content
+		$this->authorAvatarUrl = $newAuthorAvatarUrl;
 	}
 
 	/**
-	 * accessor method for author content
+	 * accessor method for author activation token
 	 *
-	 * @return string value of author content
+	 * @return string value of author activation token
 	 **/
-	public function getAuthorContent() : string {
-		return($this->authorContent);
+	public function getAuthorActivationToken() : string {
+		return($this->authorActivationToken);
 	}
 
 	/**
-	 * mutator method for author content
+	 * mutator method for authoractivation token
 	 *
-	 * @param string $newAuthorContent new value of author content
-	 * @throws \InvalidArgumentException if $newAuthorContent is not a string or insecure
-	 * @throws \RangeException if $newAuthorContent is > 140 characters
-	 * @throws \TypeError if $newAuthorContent is not a string
+	 * @param string $newAuthorActivationToken
+	 * @throws \InvalidArgumentException if the token is not a string or insecure
+	 * @throws \RangeException if the token is not exactly 32 characters
+	 * @throws \TypeError if activation token is not a string
 	 **/
-	public function setAuthorContent(string $newAuthorContent) : void {
-		// verify the author content is secure
-		$newAuthorContent = trim($newAuthorContent);
-		$newAuthorContent = filter_var($newAuthorContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($newAuthorContent) === true) {
-			throw(new \InvalidArgumentException("author content is empty or insecure"));
-		}
 
-		// verify the author content will fit in the database
-		if(strlen($newAuthorContent) > 140) {
-			throw(new \RangeException("author content too large"));
-		}
-
-		// store the author content
-		$this->authorContent = $newAuthorContent;
-	}
-
-	/**
-	 * accessor method for author date
-	 *
-	 * @return \DateTime value of author date
-	 **/
-	public function getAuthorDate() : \DateTime {
-		return($this->authorDate);
-	}
-
-	/**
-	 * mutator method for author date
-	 *
-	 * @param \DateTime|string|null $newAuthorDate author date as a DateTime object or string (or null to load the current time)
-	 * @throws \InvalidArgumentException if $newAuthorDate is not a valid object or string
-	 * @throws \RangeException if $newAuthorDate is a date that does not exist
-	 **/
-	public function setAuthorDate($newAuthorDate = null) : void {
-		// base case: if the date is null, use the current date and time
-		if($newAuthorDate === null) {
-			$this->authorDate = new \DateTime();
+	public function setAuthorActivationToken(string $newAuthorActivationToken) : void {
+		if($newActivationToken === null) {
+			$this->authorActivationToken = null;
 			return;
 		}
-
-		// store the like date using the ValidateDate trait
-		try {
-			$newAuthorDate = self::validateDateTime($newAuthorDate);
-		} catch(\InvalidArgumentException | \RangeException $exception) {
-			$exceptionType = get_class($exception);
-			throw(new $exceptionType($exception->getMessage(), 0, $exception));
+		$newAuthorActivationToken = strtolower (trim($newAuthorActivationToken));
+		if (ctype_xdigit($newAuthorActivationToken)=== false) {
+			throw (new\RangeException("user activation is not valid"));
 		}
-		$this->authorDate = $newAuthorDate;
+
+		// make sure user activation token is only 32 characters
+		if(strlen($newAuthorActivationToken) === false) {
+			throw(new \RangeException("user activation token has to be 32"));
+		}
+		$this->authorActivationToken = $newAuthorActivationToken;
 	}
 
 	/**
-	 * inserts this Author into mySQL
+	 * accessor method for email
+	 *
+	 * @return string value of email
+	 **/
+	public function getAuthorEmail() : string {
+		return($this->authorEmail;
+	}
+
+	/**
+	 * mutator method for email
+	 *
+	 * @param string $newAuthorEmail new value of email
+	 * @throws \InvalidArgumentException if $newEmail is not a valid email or insecure
+	 * @throws \RangeException if $newAuthorEmail is > 128 characters
+	 * @throws \TypeError if $newEmail is not a string
+	 **/
+
+	public function setAuthorEmail($newAuthorEmail = null) : void {
+		// verify the email is secure
+	$newAuthorEmail = trim ($newAuthorEmail);
+	$newAuthorEmail = filter_var($newAuthorEmail, FILTER_VALIDATE_EMAIL);
+		if( EMPTY ($newAuthorEmail) === true) {
+			throw (new \InvalidArgumentException("author email is empty or insecure"));
+		}
+		//verify the email will fit in the database
+	if (strlen($newAuthorEmail) > 128) {
+		throw (new \RangeException("author email is too large"));
+	}
+	//store the amil
+			$this->authorEmail = $newAuthorEmail;
+
+	public function setAuthorHash(string $newAuthorHash): void {
+		//enforce that the hash is properly formatted
+		$newAuthorHash = trim($newAuthorHash);
+		if(empty($newAuthorHash) === true) {
+			throw(new \InvalidArgumentException("author password hash empty or insecure"));
+		}
+		//enforce the hash is really an Argon hash
+		$authorHashInfo = password_get_info($newAuthorHash);
+		if($authorHashInfo["algoName"] !== "argon2i") {
+			throw(new \InvalidArgumentException("author hash is not a valid hash"));
+		}
+		//enforce that the hash is exactly 97 characters.
+		if(strlen($newAuthorHash) !== 97) {
+			throw(new \RangeException("author hash must be 97 characters"));
+		}
+		//store the hash
+		$this->authorHash = $newAuthorHash;
+	}
+
+	/*
+ * Username
+ */
+	public function getAuthorUsername() {
+		return $this->authorUsername;
+	}
+	public function setAuthorUsername(string $newAuthorUsername): void {
+		$newAuthorUsername = trim($newAuthorUsername);
+		$newAuthorUsername = filter_var($newAuthorUsername, FILTER_SANITIZE_STRING);
+		if(strlen($newAuthorUsername) > 32) {
+			throw(new \RangeException(" UserNametoo large"));
+		}
+		$this->authorUsername = $newAuthorUsername;
+	}
+
+
+	/**
+	 * inserts this author into mySQL
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @throws \PDOException when mySQL related errors occur
@@ -216,18 +250,18 @@ class Author implements \JsonSerializable {
 	public function insert(\PDO $pdo) : void {
 
 		// create query template
-		$query = "INSERT INTO author(authorId,authorProfileId, authorContent, authorDate) VALUES(:authorId, :authorProfileId, :authorContent, :authorDate)";
+		$query = "INSERT INTO author(authorId,authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername, ) VALUES(:authorId, :authorAvatarUrl, :authorActivationToken, :authorEmail; :authorHash, :authorUsername)";
 		$statement = $pdo->prepare($query);
 
 		// bind the member variables to the place holders in the template
-		$formattedDate = $this->authorDate->format("Y-m-d H:i:s.u");
-		$parameters = ["authorId" => $this->authorId->getBytes(), "authorProfileId" => $this->authorProfileId->getBytes(), "authorContent" => $this->authorContent, "authorDate" => $formattedDate];
+		$parameters = ["authorId" => $this->authorId->getBytes(), "authorAvatarUrl" => $this->authorAvatarUrl,"authorActivationToken"=> $this->authorActivationToken,
+			"authorEmail" => $this->authorEmail, "authorHash" => $this->authorHash, "authorUsername" =>$this->authorUsername ];
 		$statement->execute($parameters);
 	}
 
 
 	/**
-	 * deletes this Author from mySQL
+	 * deletes this author from mySQL
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @throws \PDOException when mySQL related errors occur
@@ -254,17 +288,15 @@ class Author implements \JsonSerializable {
 	public function update(\PDO $pdo) : void {
 
 		// create query template
-		$query = "UPDATE author SET authorProfileId = :authorProfileId, authorContent = :authorContent, authorDate = :authorDate WHERE authorId = :authorId";
+		$query = "UPDATE author SET authorAvatarUrl = :authorAuthorUrl = :authorAvatarUrl, authorActivationToken = :authorActivationToken, authorEmail = :authorEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
-
-
-		$formattedDate = $this->authorDate->format("Y-m-d H:i:s.u");
-		$parameters = ["authorId" => $this->authorId->getBytes(),"authorProfileId" => $this->authorProfileId->getBytes(), "authorContent" => $this->authorContent, "authorDate" => $formattedDate];
+		$parameters = ["authorAvatarUrl" => $this->authorAvatarUrl,"authorActivationToken"=> $this->authorActivationToken,
+			"authorEmail" => $this->authorEmail, "authorHash" => $this->authorHash, "authorUsername" =>$this->authorUsername ];
 		$statement->execute($parameters);
 	}
 
 	/**
-	 * gets the Author by authorId
+	 * gets the author by authorId
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @param Uuid|string $authorId author id to search for
@@ -281,11 +313,11 @@ class Author implements \JsonSerializable {
 		}
 
 		// create query template
-		$query = "SELECT authorId, authorProfileId, authorContent, authorDate FROM author WHERE authorId = :authorId";
+		$query = \"SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername FROM author WHERE authorID = :authorID\";
 		$statement = $pdo->prepare($query);
 
-		// bind the author id to the place holder in the template
-		$parameters = ["authorId" => $authorId->getBytes()];
+		//bind the author id to the place holder in the template
+		$parameters = {"authorId" => $authorId->getBytes()];
 		$statement->execute($parameters);
 
 		// grab the author from mySQL
@@ -294,119 +326,37 @@ class Author implements \JsonSerializable {
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$author = new author($row["authorId"], $row["authorProfileId"], $row["authorContent"], $row["authorDate"]);
+				$author = new author($row[\"authorId\"], $row[\"authorAvatarUrl\"], $row[\"authorActivationToken\"], $row[\"authorEmail\"],
+				$row[\"authorHash\"], $row[\"authorUsername\"]);
 			}
 		} catch(\Exception $exception) {
 			// if the row couldn't be converted, rethrow it
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
-		return($author);
-	}
-
-	/**
-	 * gets the author by profile id
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param Uuid|string $authorProfileId profile id to search by
-	 * @return \SplFixedArray SplFixedArray of authors found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getAuthorByAuthorProfileId(\PDO $pdo, $authorProfileId) : \SplFixedArray {
-
-		try {
-			$authorProfileId = self::validateUuid($authorProfileId);
-		} catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
-			throw(new \PDOException($exception->getMessage(), 0, $exception));
-		}
-
-		// create query template
-		$query = "SELECT authorId, authorProfileId, authorContent, authorDate FROM author WHERE authorProfileId = :authorProfileId";
-		$statement = $pdo->prepare($query);
-		// bind the author profile id to the place holder in the template
-		$parameters = ["authorProfileId" => $authorProfileId->getBytes()];
-		$statement->execute($parameters);
-		// build an array of authors
-		$authors = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$author = new Author($row["authorId"], $row["authorProfileId"], $row["authorContent"], $row["authorDate"]);
-				$authors[$authors->key()] = $author;
-				$authors->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
 		return($authors);
 	}
 
 	/**
-	 * gets the Author by content
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param string $authorContent author content to search for
-	 * @return \SplFixedArray SplFixedArray of Authors found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getAuthorByAuthorContent(\PDO $pdo, string $authorContent) : \SplFixedArray {
-		// sanitize the description before searching
-		$authorContent = trim($authorContent);
-		$authorContent = filter_var($authorContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($authorContent) === true) {
-			throw(new \PDOException("author content is invalid"));
-		}
-
-		// escape any mySQL wild cards
-		$authorContent = str_replace("_", "\\_", str_replace("%", "\\%", $authorContent));
-
-		// create query template
-		$query = "SELECT authorId, authorProfileId, authorContent, authorDate FROM author WHERE authorContent LIKE :authorContent";
-		$statement = $pdo->prepare($query);
-
-		// bind the author content to the place holder in the template
-		$authorContent = "%$authorContent%";
-		$parameters = ["authorContent" => $authorContent];
-		$statement->execute($parameters);
-
-		// build an array of authors
-		$authors = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$author = new author($row["authorId"], $row["authorProfileId"], $row["authorContent"], $row["authorDate"]);
-				$authors[$authors->key()] = $author;
-				$authors->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return($authors);
-	}
-
-	/**
-	 * gets all Autors
+	 **
+	 * gets all authors
 	 *
 	 * @param \PDO $pdo PDO connection object
 	 * @return \SplFixedArray SplFixedArray of Authors found or null if not found
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
-	public static function getAllAuthors(\PDO $pdo) : \SPLFixedArray {
+	public static function getAllauthors(\PDO $pdo) : \SPLFixedArray {
 		// create query template
-		$query = "SELECT authorId, authorProfileId, authorContent, authorDate FROM author";
+		$query = "SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername  FROM author";
 		$statement = $pdo->prepare($query);
 		$statement->execute();
-
-		// build an array of authors
+		
+		// build an array of Authors
 		$authors = new \SplFixedArray($statement->rowCount());
 		$statement->setFetchMode(\PDO::FETCH_ASSOC);
 		while(($row = $statement->fetch()) !== false) {
 			try {
-				$author = new author($row["authorId"], $row["authorProfileId"], $row["authorContent"], $row["authorDate"]);
+				$author = new author($row["authorId"], $row["authorAvatarUrl"], $row["authorActivationToken"], $row["authorEmail"], $row["authorHash"], $row["authorUsername"]);
 				$authors[$authors->key()] = $author;
 				$authors->next();
 			} catch(\Exception $exception) {
@@ -422,14 +372,11 @@ class Author implements \JsonSerializable {
 	 *
 	 * @return array resulting state variables to serialize
 	 **/
-	public function jsonSerialize() : array {
+
+	public function jsonSerialize() {
 		$fields = get_object_vars($this);
-
 		$fields["authorId"] = $this->authorId->toString();
-		$fields["authorProfileId"] = $this->authorProfileId->toString();
-
-		//format the date so that the front end can consume it
-		$fields["authorDate"] = round(floatval($this->authorDate->format("U.u")) * 1000);
-		return($fields);
-	}
-}
+		unset($fields["authorActivationToken"]);
+		unset($fields["authorHash"]);
+		return ($fields);
+ 	}
