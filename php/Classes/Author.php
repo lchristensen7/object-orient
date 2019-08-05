@@ -50,6 +50,7 @@ class Author implements \JsonSerializable {
 	 **/
 
 	private $authorUsername;
+
 	/**
 	 * constructor for this Author
 	 *
@@ -88,7 +89,7 @@ class Author implements \JsonSerializable {
 	 * @return Uuid value of author id
 	 **/
 	public function getAuthorId() : Uuid {
-		return($this->AuthorId);
+		return($this->authorId);
 	}
 
 	/**
@@ -98,6 +99,7 @@ class Author implements \JsonSerializable {
 	 * @throws \RangeException if $newAuthorId is not positive
 	 * @throws \TypeError if $newAuthorId is not a uuid or string
 	 **/
+
 	public function setAuthorId( $newAuthorId) : void {
 		try {
 			$uuid = self::validateUuid($newAuthorId);
@@ -115,7 +117,7 @@ class Author implements \JsonSerializable {
 	 *
 	 * @return string
 	 **/
-	public function getAuthorAvatarUrl() : Uuid{
+	public function getAuthorAvatarUrl() {
 		return($this->authorAvatarUrl);
 	}
 
@@ -135,7 +137,7 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 	throw(new \RangeException ("image content too large"));
 }
 		//store the image content
-		$this->authorAvatarUrl = $newAuthorAvatarUrl;
+		$this->authorAvatarUrl=$newAuthorAvatarUrl;
 	}
 
 	/**
@@ -279,14 +281,14 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 	 * inserts this author into mySQL
 	 *
 	 * @param \PDO $pdo PDO connection object
-	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \PDO Exception when mySQL related errors occur
 	 * @throws \TypeError if $pdo is not a PDO connection object
 	 **/
 	public function insert(\PDO $pdo) : void {
 
 		// create query template
 		$query = "INSERT INTO author(authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername) 
-		VALUES(:authorId, :authorAvatarUrl, :authorActivationToken, :authorEmail; :authorHash, :authorUsername)";
+		VALUES(:authorId, :authorAvatarUrl, :authorActivationToken, :authorEmail, :authorHash, :authorUsername)";
 		$statement = $pdo->prepare($query);
 
 		$parameters = ["authorId" => $this->authorId->getBytes(), "authorAvatarUrl" => $this->authorAvatarUrl,"authorActivationToken"=> $this->authorActivationToken,
@@ -304,7 +306,7 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 	public function update(\PDO $pdo) : void {
 
 		// create query template
-		$query = "UPDATE author SET authorAvatarUrl = :authorAuthorUrl = :authorAvatarUrl, authorActivationToken = :authorActivationToken, authorEmail = :authorEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
+		$query = "UPDATE author SET authorAvatarUrl = :authorAuthorUrl, authorActivationToken = :authorActivationToken, authorEmail = :authorEmail, authorHash = :authorHash, authorUsername = :authorUsername WHERE authorId = :authorId";
 		$statement = $pdo->prepare($query);
 
 		//bind the member variables to the place holders in the template
@@ -351,8 +353,9 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
 
+
 		// create query template
-		$query = "SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername FROM author WHERE authorID = :authorID\";
+		$query = "SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername FROM author WHERE authorId LIKE = :authorId";
 		$statement = $pdo->prepare($query);
 
 		//bind the author id to the place holder in the template
@@ -386,20 +389,20 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
 
-	public static function getAllauthors(\PDO $pdo) : \SPLFixedArray {
+	public static function getAllAuthors(\PDO $pdo) : \SPLFixedArray {
 
 		// create query template
-		$query = SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername FROM author;
+		$query = "SELECT authorId, authorAvatarUrl, authorActivationToken, authorEmail, authorHash, authorUsername FROM author";
 		$statement = $pdo->prepare($query);
 		$statement->execute();
 		
 		// build an array of Authors
-		$authors = new \SplFixedArray($statement->rowCount());
+		$author = new \SplFixedArray($statement->rowCount());
 		$statement->setFetchMode(\PDO::FETCH_ASSOC);
 		while(($row = $statement->fetch()) !== false) {
 			try {
 				$author = new author($row[authorId], $row[authorAvatarUrl], $row[authorActivationToken], $row[authorEmail], $row[authorHash], $row[authorUsername]);
-				$authors $authors->key() = $author;
+				$authors [$authors->key()] = $author;
 				$authors->next();
 
 			} catch(\Exception $exception) {
@@ -408,7 +411,7 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 				throw(new \PDOException($exception->getMessage(), 0, $exception));
 			}
 		}
-		return ($authors);
+		return ($author);
 	}
 
 	/**
@@ -419,9 +422,9 @@ if (strlen($newAuthorAvatarUrl) > 255) {
 
 	public function jsonSerialize() {
 		$fields = get_object_vars($this);
-		$fields[authorId] = $this->authorId->toString();
-		unset($fields[authorActivationToken]);
-		unset($fields[authorHash]);
+		$fields["authorId"] = $this->authorId->toString();
+		unset($fields["authorActivationToken"]);
+		unset($fields["authorHash"]);
 		return ($fields);
 		}
 }
